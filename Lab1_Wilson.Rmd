@@ -1,0 +1,35 @@
+---
+title: "Lab 1"
+author: "Thomas Wilson"
+date: "2/3/2021"
+output: html_document
+---
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+#Ran examples in .R file
+#Exercise 1
+x <- 3; y <- 15
+x+y
+y-x
+x*y
+y/x
+```
+```{r}
+#Exercise 2
+x <- 2; y <- 3
+z = x^5 > y^4
+z
+```
+```{r}
+#Exercise 3
+x <- c(22, 62, 148, 43, 129)
+sum(x)
+x/sum(x)
+```
+```{r}
+#Exercise 4
+nucleotides <- c("A","T","C", "G")
+sort(nucleotides)
+```
+

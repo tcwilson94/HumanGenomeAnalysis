@@ -1,0 +1,140 @@
+---
+title: "Lab 2"
+author: "Thomas Wilson"
+date: "2/10/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r}
+#Class Examples
+#Basic Data Types
+x <- c(1, 2, 3, 4)
+str(x)
+a <- c("1", "2", "3", "4")
+str(a)
+x <- c(1, 2, 3, 4)
+y <- c(2, 4, 6, 8)
+z <- c(x, y)
+str(z)
+```
+
+```{r}
+#Factors
+SNPs <- c("AA", "AA", "GG", "AG", "AG", "AA","AG", "AA", "AA", "AA", "AG")
+str(SNPs)
+SNPs_cat <- as_factor(SNPs)
+str(SNPs_cat)
+#Reading files with tidyverse
+UMass_COVID_data <- read_csv("~/Desktop/Evolutionary_Genomics/UMass_COVID_Data_Export_2021-02-10.csv")
+str(UMass_COVID_data)
+```
+
+```{r}
+#SNP Genotype
+mySNPs_cat25 <- read_tsv("~/Desktop/Evolutionary_Genomics/23andMe_cat25.txt", comment = '#')
+
+#Note that the rsid and genotype columns formatted as characters and chromosome and position as numbers. We are most often going to want to work with genotype and chromosome as factors. We can specific these when importing the data.
+
+mySNPs_cat25 <- read_tsv("~/Desktop/Evolutionary_Genomics/23andMe_cat25.txt", comment = '#', col_types = 
+  cols(
+    rsid = col_character(),
+    chromosome = col_factor(),
+    position = col_integer(),
+    genotype = col_factor()
+  ))
+#Complete 23andMe file
+mySNPs_all <- read_tsv("~/Desktop/Evolutionary_Genomics/23andMe_complete.txt", comment = '#', col_types = 
+  cols(
+    rsid = col_character(),
+    chromosome = col_factor(),
+    position = col_integer(),
+    genotype = col_factor()
+  ))
+mySNPs_all
+```
+
+```{r}
+#intro to data manipulation
+UMass_COVID_data %>% 
+  filter(cases > 30) 
+UMass_COVID_data %>% 
+  filter(collection_date >= '2021-02-01')
+#String them together
+UMass_COVID_data %>% 
+  filter(collection_date >= '2021-02-01') %>% 
+  filter(cases > 30) 
+#total number of cases
+UMass_COVID_data %>%
+  summarise(total_cases = sum(cases))
+#Make a new column with # of cases detected per number of test
+UMass_COVID_data %>%
+  mutate(detection = cases/tests)
+#Select a subset of columns
+UMass_COVID_data %>%
+  select(collection_date, tests, cases)
+#Create a new data object
+UMass_COVID_data_filter <- UMass_COVID_data %>% 
+  select(collection_date, tests, cases) %>% 
+  filter(collection_date >= '2021-02-01') %>% 
+  filter(cases > 30) %>% 
+  mutate(detection = cases/tests)
+UMass_COVID_data_filter
+```
+```{r}
+#23andMe data
+#count
+mySNPs_all %>% 
+  count(genotype)
+#sort
+mySNPs_all %>% 
+  arrange(-position)
+#Group particular column for calculations
+mySNPs_all %>% 
+  group_by(chromosome, genotype) %>% 
+  count(genotype)
+```
+```{r}
+#Making tables in R Markdown reports
+library(knitr)
+kable(UMass_COVID_data[1:10, ], caption = "COVID-19 testing conducted on the UMass community ")
+#Better option (don't do with very large tables)
+library(DT)
+datatable(UMass_COVID_data)
+```
+```{r}
+#Exercises
+#Exercise 1
+mySNPs_all %>%
+  select(position, genotype)
+#Exercise 2
+mySNPs_all %>%
+  filter(chromosome == "MT") %>%
+  filter(genotype != "A") %>%
+  filter(genotype != "T")
+#Exercise 3
+mySNPs_all_position <- mySNPs_all %>%
+  group_by(chromosome) %>%
+  summarise(
+    min_position = min(position),
+    max_position = max(position),
+    total_positions = sum(position))
+  mySNPs_all_position
+#Exercise 4
+  mySNPs_all_Denisty <- mySNPs_all_position %>%
+    mutate(SNP_Denisty = total_positions/(max_position - min_position))
+  mySNPs_all_Denisty
+#Exercise 5
+mySNPs_all_Denisty %>%
+  arrange(-SNP_Denisty)
+#Exercise 6
+datatable(mySNPs_all_Denisty)
+
+
+  
+```
+
